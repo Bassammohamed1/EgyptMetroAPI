@@ -3,6 +3,15 @@
     This API allows users to manage metro lines and stations, retrieve line and station details, find paths with estimated time and
     prices, and identify the nearest station based on location.
 
+# Testing
+- Implemented unit tests using **xUnit** to ensure the reliability of the API.
+- Covered core business logic, including:
+  - Adding and updating lines and stations
+  - Calculating nearest stations
+  - Get path between two stations
+  - Get stations line
+  - Ensuring proper validation for input data
+
 # Features
 
     Lines Endpoints
