@@ -1,0 +1,280 @@
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\appsettings.Development.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\appsettings.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.exe
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.deps.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.runtimeconfig.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.pdb
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Azure.Core.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Azure.Identity.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Humanizer.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.OpenApi.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Mono.TextTemplating.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.CodeDom.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.AttributedModel.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.Convention.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.Hosting.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.Runtime.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.TypedParts.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Drawing.Common.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Memory.Data.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Runtime.Caching.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Security.Permissions.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Text.Json.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Windows.Extensions.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.AssemblyReference.cache
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.GeneratedMSBuildEditorConfig.editorconfig
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.AssemblyInfoInputs.cache
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.AssemblyInfo.cs
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.CoreCompileInputs.cache
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.MvcApplicationPartsAssemblyInfo.cs
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.MvcApplicationPartsAssemblyInfo.cache
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.build.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.development.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.MetroAPI.Microsoft.AspNetCore.StaticWebAssets.props
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.build.MetroAPI.props
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.MetroAPI.props
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.MetroAPI.props
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.pack.json
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\scopedcss\bundle\MetroAPI.styles.css
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.CopyComplete
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\refint\MetroAPI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.pdb
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.genruntimeconfig.cache
+E:\Projects\MyProjects\MetroAPI\MetroAPI\obj\Debug\net8.0\ref\MetroAPI.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MediatR.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MediatR.Contracts.dll
+E:\Projects\MyProjects\MetroAPI\MetroAPI\bin\Debug\net8.0\MediatR.Extensions.Microsoft.DependencyInjection.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\appsettings.Development.json
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\appsettings.json
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.exe
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.deps.json
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.runtimeconfig.json
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MetroAPI.pdb
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Azure.Core.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Azure.Identity.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Humanizer.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MediatR.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MediatR.Contracts.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\MediatR.Extensions.Microsoft.DependencyInjection.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.CodeAnalysis.Workspaces.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Design.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Extensions.DependencyModel.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.OpenApi.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Mono.TextTemplating.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.CodeDom.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.AttributedModel.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.Convention.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.Hosting.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.Runtime.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Composition.TypedParts.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Drawing.Common.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Memory.Data.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Runtime.Caching.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Security.Permissions.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Text.Json.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\System.Windows.Extensions.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+E:\My Projects\MetroAPI\MetroAPI\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.AssemblyReference.cache
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.GeneratedMSBuildEditorConfig.editorconfig
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.AssemblyInfoInputs.cache
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.AssemblyInfo.cs
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.CoreCompileInputs.cache
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.MvcApplicationPartsAssemblyInfo.cs
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.MvcApplicationPartsAssemblyInfo.cache
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.build.json
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.development.json
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.MetroAPI.Microsoft.AspNetCore.StaticWebAssets.props
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.build.MetroAPI.props
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.MetroAPI.props
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.MetroAPI.props
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.pack.json
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\scopedcss\bundle\MetroAPI.styles.css
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.CopyComplete
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.dll
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\refint\MetroAPI.dll
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.pdb
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.genruntimeconfig.cache
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\ref\MetroAPI.dll
