@@ -41,7 +41,7 @@ namespace MetroAPI.Services.Stations
         }
         public async Task DeleteStation(Station data)
         {
-            _context.Stations.AddAsync(data);
+            _context.Stations.Remove(data);
             await _context.SaveChangesAsync();
         }
         public async Task<List<int>> GetStationLineAsync(string station)
