@@ -1,11 +1,1 @@
-{
-  "Version": 1,
-  "Hash": "WuwN1VEnkXfbh35oqf1HeZTBpNzsa+AoJKzOEHwvp3Q=",
-  "Source": "MetroAPI",
-  "BasePath": "_content/MetroAPI",
-  "Mode": "Default",
-  "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
-}
+{"Version":1,"Hash":"F8U8zDQ3p8utB6UdWGnvDEB+voerF/VFPFD1JbLO4aw=","Source":"MetroAPI","BasePath":"_content/MetroAPI","Mode":"Default","ManifestType":"Build","ReferencedProjectsConfiguration":[],"DiscoveryPatterns":[],"Assets":[],"Endpoints":[]}

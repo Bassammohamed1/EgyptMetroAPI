@@ -10,6 +10,7 @@ namespace MetroAPI.Controllers
     public class LinesController : ControllerBase
     {
         private readonly ILinesService _linesService;
+
         public LinesController(ILinesService linesService)
         {
             _linesService = linesService;
@@ -21,6 +22,7 @@ namespace MetroAPI.Controllers
             var data = await _linesService.GetLinesAsync();
             return Ok(data);
         }
+
         [HttpGet("GetLine/{id}")]
         public async Task<IActionResult> GetLine(int id)
         {
@@ -33,6 +35,7 @@ namespace MetroAPI.Controllers
 
             return Ok(data);
         }
+
         [HttpPost("AddLine")]
         public async Task<IActionResult> AddLine(LineDTO data)
         {
@@ -41,9 +44,12 @@ namespace MetroAPI.Controllers
                 Name = data.Name,
                 LineNo = data.LineNo,
             };
+
             await _linesService.AddLine(line);
+
             return Ok(new OutputMessage { Message = "Line has been added successfully!" });
         }
+
         [HttpPut("UpdateLine/{id}")]
         public async Task<IActionResult> UpdateLine(int id, LineDTO data)
         {
@@ -57,6 +63,7 @@ namespace MetroAPI.Controllers
             await _linesService.UpdateLine(line);
             return Ok(new OutputMessage { Message = "Line has been updated successfully!" });
         }
+
         [HttpDelete("DeleteLine/{id}")]
         public async Task<IActionResult> DeleteLine(int id)
         {
@@ -68,6 +75,7 @@ namespace MetroAPI.Controllers
             await _linesService.DeleteLine(line);
             return Ok(new OutputMessage { Message = "Line has been deleted successfully!" });
         }
+
         [HttpGet("GetLineStations")]
         public async Task<IActionResult> GetLineStations(int LineNo)
         {

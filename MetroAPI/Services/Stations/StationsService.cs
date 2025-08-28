@@ -9,11 +9,13 @@ namespace MetroAPI.Services.Stations
     {
         private readonly AppDbContext _context;
         private readonly ILinesService _linesService;
+
         public StationsService(AppDbContext context, ILinesService linesService)
         {
             _context = context;
             _linesService = linesService;
         }
+
         public async Task<Station> GetStationAsync(int id)
         {
             if (id is 0)
@@ -21,29 +23,35 @@ namespace MetroAPI.Services.Stations
 
             return await _context.Stations.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id);
         }
+
         public async Task<IEnumerable<Station>> GetStationsAsync()
         {
             return _context.Stations.AsNoTracking().AsEnumerable();
         }
+
         public async Task<IEnumerable<Station>> GetStationsWithLinesAsync()
         {
             return _context.Stations.Include(s => s.Line).AsNoTracking().AsSplitQuery().AsEnumerable();
         }
+
         public async Task AddStation(Station data)
         {
             await _context.Stations.AddAsync(data);
             await _context.SaveChangesAsync();
         }
+
         public async Task UpdateStation(Station data)
         {
             _context.Stations.Update(data);
             await _context.SaveChangesAsync();
         }
+
         public async Task DeleteStation(Station data)
         {
             _context.Stations.Remove(data);
             await _context.SaveChangesAsync();
         }
+
         public async Task<List<int>> GetStationLineAsync(string station)
         {
             var stations = await this.GetStationsWithLinesAsync();
@@ -59,6 +67,7 @@ namespace MetroAPI.Services.Stations
 
             return lines;
         }
+
         public async Task<List<Station>> GetPathAsync(string fromStation, string toStation)
         {
             int stationsLine, fromStationLine, toStationLine;
@@ -81,7 +90,7 @@ namespace MetroAPI.Services.Stations
 
                     var tempToStation = await this.FindStationByNameAsync(toStation);
                     if (tempToStation is null)
-                        return null; 
+                        return null;
 
                     var ToStation = tempToStation.First();
 
@@ -612,6 +621,7 @@ namespace MetroAPI.Services.Stations
             }
             return null;
         }
+
         public async Task<double> GetDistanceAsync(double lat1, double lon1, double lat2, double lon2)
         {
             var R = 6371;
@@ -625,11 +635,13 @@ namespace MetroAPI.Services.Stations
             var distance = R * c;
             return distance;
         }
-        private async Task<double> Deg2RadAsync(double deg)
+
+        public async Task<double> Deg2RadAsync(double deg)
         {
             return deg * (Math.PI / 180);
         }
-        private async Task<List<Station>> GetSharedStationsAsync(int line1, int line2)
+
+        public async Task<List<Station>> GetSharedStationsAsync(int line1, int line2)
         {
             var data = new List<Station>();
             var FirstLineStations = await _linesService.GetLineStationsAsync(line1);
@@ -643,11 +655,12 @@ namespace MetroAPI.Services.Stations
 
             return data;
         }
-        private async Task<IQueryable<Station>> FindStationByNameAsync(string station)
+
+        public async Task<IQueryable<Station>> FindStationByNameAsync(string station)
         {
             var Station = _context.Stations.Include(l => l.Line).Where(s => s.Name.ToLower() == station.ToLower()).AsNoTracking().AsSplitQuery();
 
-            return Station.Any() ? Station : Enumerable.Empty<Station>().AsQueryable();
+            return await Station.AnyAsync() ? Station : Enumerable.Empty<Station>().AsQueryable();
         }
     }
 }

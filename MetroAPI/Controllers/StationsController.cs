@@ -10,16 +10,19 @@ namespace MetroAPI.Controllers
     public class StationsController : ControllerBase
     {
         private readonly IStationsService _stationsService;
+
         public StationsController(IStationsService stationsService)
         {
             _stationsService = stationsService;
         }
+
         [HttpGet("GetAllStations")]
         public async Task<IActionResult> GetAllStations()
         {
             var data = await _stationsService.GetStationsAsync();
             return Ok(data);
         }
+
         [HttpGet("GetStation/{id}")]
         public async Task<IActionResult> GetStation(int id)
         {
@@ -30,6 +33,7 @@ namespace MetroAPI.Controllers
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
             return Ok(data);
         }
+
         [HttpPost("AddStation")]
         public async Task<IActionResult> AddStation(StationDTO data)
         {
@@ -46,6 +50,7 @@ namespace MetroAPI.Controllers
             await _stationsService.AddStation(station);
             return Ok(new OutputMessage { Message = "Station has been added successfully!" });
         }
+
         [HttpPut("UpdateStation/{id}")]
         public async Task<IActionResult> UpdateStation(int id, StationDTO data)
         {
@@ -64,6 +69,7 @@ namespace MetroAPI.Controllers
             await _stationsService.UpdateStation(station);
             return Ok(new OutputMessage { Message = "Station has been updated successfully!" });
         }
+
         [HttpDelete("DeleteStation/{id}")]
         public async Task<IActionResult> DeleteStation(int id)
         {
@@ -74,6 +80,7 @@ namespace MetroAPI.Controllers
             await _stationsService.DeleteStation(station);
             return Ok(new OutputMessage { Message = "Station has been deleted successfully!" });
         }
+
         [HttpGet("GetStationLine")]
         public async Task<IActionResult> GetStationLine(string station)
         {
@@ -89,6 +96,7 @@ namespace MetroAPI.Controllers
                     {
                         Lines = lines
                     };
+
                     return Ok(Lines);
                 }
                 else
@@ -97,12 +105,14 @@ namespace MetroAPI.Controllers
                     {
                         Line = lines.First()
                     };
+
                     return Ok(line);
                 }
             }
             else
                 return BadRequest(new OutputMessage { Message = $"Station {station} was not found on any line." });
         }
+
         [HttpGet("GetPathWithTimeAndPrice")]
         public async Task<IActionResult> GetPathWithTimeAndPrice(string From, string To)
         {
@@ -132,6 +142,7 @@ namespace MetroAPI.Controllers
             }
             return BadRequest(new OutputMessage { Message = "An error occurred." });
         }
+
         [HttpPost("GetNearestStation")]
         public async Task<IActionResult> GetNearestStation([FromBody] LocationDto location)
         {
