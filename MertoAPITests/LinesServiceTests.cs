@@ -1,9 +1,9 @@
+using FakeItEasy;
 using MetroAPI.Models;
-using MetroAPI.Services.Lines;
-using Microsoft.EntityFrameworkCore;
-using static System.Collections.Specialized.BitVector32;
+using MetroAPI.Repository.Interfaces;
+using MetroAPI.Services;
 
-namespace MetroAPI.Tests
+namespace MertoAPITests
 {
     public class LinesServiceTests
     {
@@ -11,8 +11,8 @@ namespace MetroAPI.Tests
         public async Task GetLineAsync_WhenIdIsZero_ThrowArgumentNullException()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new LinesService(context);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
 
             //Act
             Func<int, Task<Line>> func = async (f) => await sut.GetLineAsync(0);
@@ -22,11 +22,46 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task GetLineByNoAsync_WhenLineNoIsZero_ThrowArgumentNullException()
+        public async Task GetLineAsync_WhenIdIsValidNumberAndThereIsNoLines_ReturnNull()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new LinesService(context);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Get(A<int>.Ignored))
+                .Returns(Task.FromResult<Line>(null));
+
+            //Act
+            var result = await sut.GetLineAsync(10);
+
+            //Assert
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetLineAsync_WhenIdIsValidNumberAndThereIsLine_ReturnLine()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Get(A<int>.Ignored))
+                .Returns(new Line() { Name = "Test" });
+
+            //Act
+            var result = await sut.GetLineAsync(10);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal("Test", result.Name);
+        }
+
+        [Fact]
+        public async Task GetLineByNoAsync_WhenIdIsZero_ThrowArgumentNullException()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
 
             //Act
             Func<int, Task<Line>> func = async (f) => await sut.GetLineByNoAsync(0);
@@ -36,126 +71,223 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task AddLine_WhenAddValidLine_AddLineSuccessfully()
+        public async Task GetLineByNoAsync_WhenLineNoIsValidNumberAndThereIsNoLines_ReturnNull()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var line = new Line()
-            {
-                Name = "Test",
-                LineNo = 1
-            };
-            var sut = new LinesService(context);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.GetByNo(A<int>.Ignored))
+                .Returns(Task.FromResult<Line>(null));
 
             //Act
-            await sut.AddLine(line);
+            var result = await sut.GetLineByNoAsync(10);
 
             //Assert
-            Assert.True(line.Id > 0);
+            Assert.Null(result);
         }
 
         [Fact]
-        public async Task UpdateLine_WhenUpdateValidLine_UpdateLineSuccessfully()
+        public async Task GetLineByNoAsync_WhenLineNoIsValidNumberAndThereIsNoLines_ReturnLine()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var line = new Line()
-            {
-                Name = "Test",
-                LineNo = 1
-            };
-            var sut = new LinesService(context);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
 
-            await context.Lines.AddAsync(line);
-            await context.SaveChangesAsync();
-
-            context.Entry(line).State = EntityState.Detached;
-
-            var newLine = new Line()
-            {
-                Id = line.Id,
-                Name = "Updated name",
-                LineNo = 1
-            };
+            A.CallTo(() => uow.Lines.GetByNo(A<int>.Ignored))
+              .Returns(new Line() { Name = "Test" });
 
             //Act
-            await sut.UpdateLine(newLine);
-
-            //Assert
-            var updatedLine = await context.Lines.FindAsync(line.Id);
-            Assert.Equal("Updated name", updatedLine.Name);
-        }
-
-        [Fact]
-        public async Task DeleteLine_WhenDeleteValidLine_DeleteLineSuccessfully()
-        {
-            //Arrange
-            var context = new InMemoryDbContext();
-            var line = new Line()
-            {
-                Name = "Test",
-                LineNo = 1
-            };
-            var sut = new LinesService(context);
-
-            await context.Lines.AddAsync(line);
-            await context.SaveChangesAsync();
-
-            //Act
-            await sut.DeleteLine(line);
-
-            //Assert
-            Assert.Null(context.Lines.Find(line.Id));
-        }
-
-        [Fact]
-        public async Task GetLineStationsAsync_WhenLineAndStationsIsNotNull_ReturnLineStations()
-        {
-            //Arrange
-            var context = new InMemoryDbContext();
-
-            var sut = new LinesService(context);
-
-            int lineNo = 1;
-            var line = new Line
-            {
-                Name = "TestLine",
-                LineNo = lineNo
-            };
-
-            var stations = new List<Station>()
-            {
-            new Station { Name="Station 1", LineId = lineNo },
-            new Station { Name="Station 2", LineId = lineNo }
-            };
-
-            context.Lines.Add(line);
-            context.Stations.AddRange(stations);
-            context.SaveChanges();
-
-            //Act
-            var result = await sut.GetLineStationsAsync(lineNo);
+            var result = await sut.GetLineByNoAsync(10);
 
             //Assert
             Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
+            Assert.Equal("Test", result.Name);
         }
 
         [Fact]
-        public async Task GetLineStationsAsync_WhenLineIsNotNull_ReturnEmptyEnumerable()
+        public async Task GetLinesAsync_WhenThereIsNoLines_ReturnEmptyEnumerable()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
-            var sut = new LinesService(context);
-
-            int lineNo = 100;
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
 
             //Act
-            var result = sut.GetLineStationsAsync(lineNo);
+            var result = await sut.GetLinesAsync();
 
             //Assert
-            Assert.False(result.Result.Any());
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Count());
+        }
+
+        [Fact]
+        public async Task GetLinesAsync_WhenThereIsLines_ReturnLines()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.GetAll())
+                .Returns(new List<Line> { new Line() { Id = 1 }, new Line() { Name = "Test" } });
+
+            //Act
+            var result = await sut.GetLinesAsync();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(1, result.First().Id);
+            Assert.Equal("Test", result.Last().Name);
+        }
+
+        [Fact]
+        public async Task GetLineStationsAsync_WhenLineIsNull_ReturnEmptyQueryable()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.GetByNo(A<int>.Ignored))
+                .Returns(Task.FromResult<Line>(null));
+
+            //Act
+            var result = await sut.GetLineStationsAsync(1);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Count());
+        }
+
+        [Fact]
+        public async Task GetLineStationsAsync_WhenLineIsNotNull_ReturnLineStations()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.GetByNo(A<int>.Ignored))
+                .Returns(new Line());
+
+            A.CallTo(() => uow.Lines.GetLineStations(A<int>.Ignored))
+              .Returns(new List<Station>() { new Station(), new Station() }.AsQueryable());
+
+            //Act
+            var result = await sut.GetLineStationsAsync(1);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+        }
+
+        [Fact]
+        public async Task AddLine_WhenThereIsErrorWhileAdding_ReturnError()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Add(A<Line>.Ignored))
+                .Returns(Task.FromResult<Line>(null));
+
+            //Act
+            var result = await sut.AddLine(new Line());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.False(result.Succed);
+            Assert.Equal("An error occured while adding.", result.Error);
+        }
+
+        [Fact]
+        public async Task AddLine_WhenThereIsNoErrorsWhileAdding_ReturnSucceed()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Add(A<Line>.Ignored))
+                .Returns(new Line());
+
+            //Act
+            var result = await sut.AddLine(new Line());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Succed);
+        }
+
+        [Fact]
+        public async Task UpdateLine_WhenThereIsErrorWhileAdding_ReturnError()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Update(A<Line>.Ignored))
+                .Returns(null);
+
+            //Act
+            var result = await sut.UpdateLine(new Line());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.False(result.Succed);
+            Assert.Equal("An error occured while updating.", result.Error);
+        }
+
+        [Fact]
+        public async Task UpdateLine_WhenThereIsNoErrorsWhileAdding_ReturnSucceed()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Update(A<Line>.Ignored))
+                .Returns(new Line());
+
+            //Act
+            var result = await sut.UpdateLine(new Line());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Succed);
+        }
+
+        [Fact]
+        public async Task DeleteLine_WhenThereIsErrorWhileAdding_ReturnError()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Delete(A<Line>.Ignored))
+                .Returns(null);
+
+            //Act
+            var result = await sut.DeleteLine(new Line());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.False(result.Succed);
+            Assert.Equal("An error occured while deleting.", result.Error);
+        }
+
+        [Fact]
+        public async Task DeleteLine_WhenThereIsNoErrorsWhileAdding_ReturnSucceed()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new LinesService(uow);
+
+            A.CallTo(() => uow.Lines.Delete(A<Line>.Ignored))
+                .Returns(new Line());
+
+            //Act
+            var result = await sut.DeleteLine(new Line());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Succed);
         }
     }
 }

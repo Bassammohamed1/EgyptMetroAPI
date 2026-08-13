@@ -280,3 +280,4 @@ E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.build.json.cac
 E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\MetroAPI.csproj.Up2Date
+E:\My Projects\MetroAPI\MetroAPI\obj\Debug\net8.0\swae.build.ex.cache

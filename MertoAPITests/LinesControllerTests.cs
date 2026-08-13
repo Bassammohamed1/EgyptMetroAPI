@@ -1,11 +1,12 @@
 ﻿using FakeItEasy;
 using MetroAPI.Controllers;
+using MetroAPI.DTOS;
+using MetroAPI.Helpers;
 using MetroAPI.Models;
-using MetroAPI.Models.DTOS;
-using MetroAPI.Services.Lines;
+using MetroAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MetroAPI.Tests
+namespace MertoAPITests
 {
     public class LinesControllerTests
     {
@@ -105,11 +106,44 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
+        public async Task AddLine_WhenThereIsAaErrorWhileAdding_ReturnBadRequest()
+        {
+            //Arrange
+            var lineService = A.Fake<ILinesService>();
+
+            A.CallTo(() => lineService.AddLine(A<Line>.Ignored))
+                .Returns(new Result { Succed = false, Error = "An error happened." });
+
+            var sut = new LinesController(lineService);
+
+            var line = new LineDTO()
+            {
+                Name = "Test",
+                LineNo = 1
+            };
+
+            //Act
+            var result = await sut.AddLine(line);
+            var badRequestResult = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestResult);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.NotNull(badRequestResult.Value);
+
+            var outputMessage = badRequestResult.Value as OutputMessage;
+            Assert.NotNull(outputMessage);
+            Assert.Equal("An error happened.", outputMessage.Message);
+        }
+
+        [Fact]
         public async Task AddLine_WhereTheLineIsValid_ReturnOk()
         {
             //Arrange
             var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.AddLine(A<Line>.Ignored));
+
+            A.CallTo(() => lineService.AddLine(A<Line>.Ignored))
+                .Returns(new Result { Succed = true });
 
             var sut = new LinesController(lineService);
 
@@ -163,11 +197,47 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
+        public async Task UpdateLine_WhenThereIsAaErrorWhileAdding_ReturnBadRequest()
+        {
+            //Arrange
+            var lineService = A.Fake<ILinesService>();
+
+            A.CallTo(() => lineService.UpdateLine(A<Line>.Ignored))
+                .Returns(new Result { Succed = false, Error = "An error happened." });
+
+            var sut = new LinesController(lineService);
+
+            var line = new LineDTO()
+            {
+                Name = "Test",
+                LineNo = 1
+            };
+
+            //Act
+            var result = await sut.UpdateLine(1, line);
+            var badRequestResult = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestResult);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.NotNull(badRequestResult.Value);
+
+            var outputMessage = badRequestResult.Value as OutputMessage;
+            Assert.NotNull(outputMessage);
+            Assert.Equal("An error happened.", outputMessage.Message);
+        }
+
+        [Fact]
         public async Task UpdateLine_WhereTheLineIsValid_ReturnOk()
         {
             //Arrange
             var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineAsync(A<int>.Ignored));
+
+            A.CallTo(() => lineService.GetLineAsync(A<int>.Ignored))
+                .Returns(new Line());
+
+            A.CallTo(() => lineService.UpdateLine(A<Line>.Ignored))
+               .Returns(new Result { Succed = true });
 
             var sut = new LinesController(lineService);
 
@@ -215,11 +285,42 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
+        public async Task DeleteLine_WhenThereIsAaErrorWhileAdding_ReturnBadRequest()
+        {
+            //Arrange
+            var lineService = A.Fake<ILinesService>();
+
+            A.CallTo(() => lineService.DeleteLine(A<Line>.Ignored))
+                .Returns(new Result { Succed = false, Error = "An error happened." });
+
+            var sut = new LinesController(lineService);
+
+            //Act
+            var result = await sut.DeleteLine(1);
+            var badRequestResult = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestResult);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.NotNull(badRequestResult.Value);
+
+            var outputMessage = badRequestResult.Value as OutputMessage;
+            Assert.NotNull(outputMessage);
+            Assert.Equal("An error happened.", outputMessage.Message);
+        }
+
+        [Fact]
         public async Task DeleteLine_WhereTheLineIsValid_ReturnOk()
         {
             //Arrange
             var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineAsync(A<int>.Ignored));
+
+            A.CallTo(() => lineService.GetLineAsync(A<int>.Ignored))
+                .Returns(new Line());
+
+
+            A.CallTo(() => lineService.DeleteLine(A<Line>.Ignored))
+               .Returns(new Result { Succed = true });
 
             var sut = new LinesController(lineService);
 
@@ -243,7 +344,8 @@ namespace MetroAPI.Tests
             //Arrange
             var lineService = A.Fake<ILinesService>();
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(Task.FromResult<List<Station>>(null));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<IQueryable<Station>>(null));
 
             var sut = new LinesController(lineService);
 
@@ -275,7 +377,8 @@ namespace MetroAPI.Tests
                 new Station(){Name ="Test 4" },
             };
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(Stations);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(Stations.AsQueryable());
 
             var sut = new LinesController(lineService);
 
@@ -299,11 +402,11 @@ namespace MetroAPI.Tests
 
             Assert.NotNull(stations);
             Assert.Equal(4, stations.Count);
-            Assert.Equal(4, stationsCount); 
-            Assert.Contains("Test 1", stations); 
-            Assert.Contains("Test 2", stations); 
-            Assert.Contains("Test 3", stations); 
-            Assert.Contains("Test 4", stations); 
+            Assert.Equal(4, stationsCount);
+            Assert.Contains("Test 1", stations);
+            Assert.Contains("Test 2", stations);
+            Assert.Contains("Test 3", stations);
+            Assert.Contains("Test 4", stations);
         }
     }
 }

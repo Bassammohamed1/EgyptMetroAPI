@@ -1,6 +1,6 @@
 using MetroAPI.Data;
-using MetroAPI.Services.Lines;
-using MetroAPI.Services.Stations;
+using MetroAPI.Services;
+using MetroAPI.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

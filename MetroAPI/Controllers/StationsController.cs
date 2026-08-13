@@ -1,6 +1,6 @@
-﻿using MetroAPI.Models.DTOS;
+﻿using MetroAPI.DTOS;
 using MetroAPI.Models;
-using MetroAPI.Services.Stations;
+using MetroAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MetroAPI.Controllers
@@ -28,9 +28,12 @@ namespace MetroAPI.Controllers
         {
             if (id == 0 || id == null)
                 return BadRequest(new OutputMessage { Message = "Invalid id!!" });
+
             var data = await _stationsService.GetStationAsync(id);
+
             if (data is null)
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
+
             return Ok(data);
         }
 
@@ -47,14 +50,18 @@ namespace MetroAPI.Controllers
                 SharedWith = data.SharedWith,
                 LineId = data.LineId
             };
-            await _stationsService.AddStation(station);
-            return Ok(new OutputMessage { Message = "Station has been added successfully!" });
+
+            var result = await _stationsService.AddStation(station);
+
+            return result.Succed ? Ok(new OutputMessage { Message = "Station has been added successfully!" }) :
+                BadRequest(new OutputMessage { Message = result.Error });
         }
 
         [HttpPut("UpdateStation/{id}")]
         public async Task<IActionResult> UpdateStation(int id, StationDTO data)
         {
             var station = await _stationsService.GetStationAsync(id);
+
             if (station is null)
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
 
@@ -66,19 +73,24 @@ namespace MetroAPI.Controllers
             station.SharedWith = data.SharedWith;
             station.LineId = data.LineId;
 
-            await _stationsService.UpdateStation(station);
-            return Ok(new OutputMessage { Message = "Station has been updated successfully!" });
+            var result = await _stationsService.UpdateStation(station);
+
+            return result.Succed ? Ok(new OutputMessage { Message = "Station has been updated successfully!" }) :
+                BadRequest(new OutputMessage { Message = result.Error });
         }
 
         [HttpDelete("DeleteStation/{id}")]
         public async Task<IActionResult> DeleteStation(int id)
         {
             var station = await _stationsService.GetStationAsync(id);
+
             if (station is null)
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
 
-            await _stationsService.DeleteStation(station);
-            return Ok(new OutputMessage { Message = "Station has been deleted successfully!" });
+            var result = await _stationsService.DeleteStation(station);
+
+            return result.Succed ? Ok(new OutputMessage { Message = "Station has been deleted successfully!" }) :
+                BadRequest(new OutputMessage { Message = result.Error });
         }
 
         [HttpGet("GetStationLine")]
@@ -86,12 +98,10 @@ namespace MetroAPI.Controllers
         {
             var lines = await _stationsService.GetStationLineAsync(station);
 
-            if (lines is not null)
+            if (lines.Any())
             {
-                if (lines.Count > 1)
+                if (lines.Count() > 1)
                 {
-                    lines = lines.Distinct().ToList();
-
                     var Lines = new
                     {
                         Lines = lines
@@ -117,51 +127,32 @@ namespace MetroAPI.Controllers
         public async Task<IActionResult> GetPathWithTimeAndPrice(string From, string To)
         {
             var data = await _stationsService.GetPathAsync(From, To);
-            int price;
 
             if (data is not null)
             {
-                if (data.Count <= 9)
-                    price = 8;
-                else if (data.Count <= 16)
-                    price = 10;
-                else if (data.Count <= 23)
-                    price = 15;
-                else
-                    price = 20;
-
                 var path = new
                 {
                     Stations = data.Select(s => s.Name).Distinct(),
-                    PriceInEGP = price,
+                    PriceInEGP = _stationsService.GetPathPrice(data.Count()),
                     StationsCount = data.Distinct().Count(),
                     TimeInMinutes = data.Distinct().Count() * 3.5
                 };
 
                 return Ok(path);
             }
+
             return BadRequest(new OutputMessage { Message = "An error occurred." });
         }
 
         [HttpPost("GetNearestStation")]
-        public async Task<IActionResult> GetNearestStation([FromBody] LocationDto location)
+        public async Task<IActionResult> GetNearestStation([FromBody] LocationDTO location)
         {
-            var stations = await _stationsService.GetStationsAsync();
-
-            var nearestStation = stations
-                .Select(async station => new
-                {
-                    Station = station,
-                    Distance = await _stationsService.GetDistanceAsync(location.Latitude, location.Longitude, station.Latitude, station.Longitude)
-                })
-                .Select(task => task.Result)
-                .OrderBy(x => x.Distance)
-                .FirstOrDefault();
+            var result = await _stationsService.GetNearestStation(location);
 
             var response = new
             {
-                name = nearestStation.Station.Name,
-                distance = nearestStation.Distance
+                name = result.StationName,
+                distance = result.Distance
             };
 
             return Ok(response);

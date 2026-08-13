@@ -1,6 +1,6 @@
-﻿using MetroAPI.Models;
-using MetroAPI.Models.DTOS;
-using MetroAPI.Services.Lines;
+﻿using MetroAPI.DTOS;
+using MetroAPI.Models;
+using MetroAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MetroAPI.Controllers
@@ -30,6 +30,7 @@ namespace MetroAPI.Controllers
                 return BadRequest(new OutputMessage { Message = "Invalid id!!" });
 
             var data = await _linesService.GetLineAsync(id);
+
             if (data is null)
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
 
@@ -45,23 +46,27 @@ namespace MetroAPI.Controllers
                 LineNo = data.LineNo,
             };
 
-            await _linesService.AddLine(line);
+            var result = await _linesService.AddLine(line);
 
-            return Ok(new OutputMessage { Message = "Line has been added successfully!" });
+            return result.Succed ? Ok(new OutputMessage { Message = "Line has been added successfully!" }) :
+                 BadRequest(new OutputMessage { Message = result.Error });
         }
 
         [HttpPut("UpdateLine/{id}")]
         public async Task<IActionResult> UpdateLine(int id, LineDTO data)
         {
             var line = await _linesService.GetLineAsync(id);
+
             if (line is null)
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
 
             line.Name = data.Name;
             line.LineNo = data.LineNo;
 
-            await _linesService.UpdateLine(line);
-            return Ok(new OutputMessage { Message = "Line has been updated successfully!" });
+            var result = await _linesService.UpdateLine(line);
+
+            return result.Succed ? Ok(new OutputMessage { Message = "Line has been updated successfully!" }) :
+                 BadRequest(new OutputMessage { Message = result.Error });
         }
 
         [HttpDelete("DeleteLine/{id}")]
@@ -72,8 +77,10 @@ namespace MetroAPI.Controllers
             if (line is null)
                 return NotFound(new OutputMessage { Message = "Invalid id!!" });
 
-            await _linesService.DeleteLine(line);
-            return Ok(new OutputMessage { Message = "Line has been deleted successfully!" });
+            var result = await _linesService.DeleteLine(line);
+
+            return result.Succed ? Ok(new OutputMessage { Message = "Line has been deleted successfully!" }) :
+                BadRequest(new OutputMessage { Message = result.Error });
         }
 
         [HttpGet("GetLineStations")]
@@ -88,6 +95,7 @@ namespace MetroAPI.Controllers
                     Stations = stations.Select(s => s.Name),
                     StationsCount = stations.Count()
                 };
+
                 return Ok(data);
             }
             else

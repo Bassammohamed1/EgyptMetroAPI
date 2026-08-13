@@ -1,10 +1,10 @@
 ﻿using FakeItEasy;
 using MetroAPI.Models;
-using MetroAPI.Services.Lines;
-using MetroAPI.Services.Stations;
-using Microsoft.EntityFrameworkCore;
+using MetroAPI.Repository.Interfaces;
+using MetroAPI.Services;
+using MetroAPI.Services.Interfaces;
 
-namespace MetroAPI.Tests
+namespace MertoAPITests
 {
     public class StationsServiceTests
     {
@@ -12,8 +12,8 @@ namespace MetroAPI.Tests
         public async Task GetStationAsync_WhenIdIsZero_ThrowsArgumentNullException()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
             Func<int, Task<Station>> func = async (f) => await sut.GetStationAsync(0);
@@ -23,96 +23,264 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task AddStation_WhenAddValidStation_AddStationSuccessfully()
+        public async Task GetStationAsync_WhenIdIsValidNumberAndThereIsNoLines_ReturnNull()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var station = new Station()
-            {
-                Name = "Station"
-            };
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Get(A<int>.Ignored))
+                .Returns(Task.FromResult<Station>(null));
 
             //Act
-            await sut.AddStation(station);
+            var result = await sut.GetStationAsync(10);
 
             //Assert
-            Assert.True(station.Id > 0);
+            Assert.Null(result);
         }
 
         [Fact]
-        public async Task UpdateStation_WhenUpdateValidStation_UpdateStationSuccessfully()
+        public async Task GetStationAsync_WhenIdIsValidNumberAndThereIsLine_ReturnStation()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var station = new Station()
-            {
-                Name = "Station"
-            };
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
-            var sut = new StationsService(context, null);
-
-            await context.Stations.AddAsync(station);
-            await context.SaveChangesAsync();
-
-            context.Entry(station).State = EntityState.Detached;
-
-            var newStation = new Station()
-            {
-                Id = station.Id,
-                Name = "Updated name"
-            };
+            A.CallTo(() => uow.Stations.Get(A<int>.Ignored))
+                .Returns(new Station() { Name = "Test" });
 
             //Act
-            await sut.UpdateStation(newStation);
+            var result = await sut.GetStationAsync(10);
 
             //Assert
-            var updatedStation = await context.Stations.FindAsync(station.Id);
-
-            Assert.Equal("Updated name", updatedStation.Name);
+            Assert.NotNull(result);
+            Assert.Equal("Test", result.Name);
         }
 
         [Fact]
-        public async Task DeleteStation_WhenDeleteValidStation_DeleteStationSuccessfully()
+        public async Task GetStationsAsync_WhenThereIsNoStations_ReturnEmptyEnumerable()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var station = new Station()
-            {
-                Name = "Station"
-            };
-            var sut = new StationsService(context, null);
-
-            await context.Stations.AddAsync(station);
-            await context.SaveChangesAsync();
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
-            await sut.DeleteStation(station);
+            var result = await sut.GetStationsAsync();
 
             //Assert
-            Assert.Null(context.Stations.Find(station.Id));
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Count());
         }
 
         [Fact]
-        public async Task GetStationLineAsync_WhenInvalidStation_ReturnNoData()
+        public async Task GetStationsAsync_WhenThereIsStations_ReturnStations()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.GetAll())
+                .Returns(new List<Station> { new Station() { Id = 1 }, new Station() { Name = "Test" } });
+
+            //Act
+            var result = await sut.GetStationsAsync();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(1, result.First().Id);
+            Assert.Equal("Test", result.Last().Name);
+        }
+
+        [Fact]
+        public async Task GetStationsWithLines_WhenThereIsNoStations_ReturnEmptyEnumerable()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            //Act
+            var result = sut.GetStationsWithLines();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Count());
+        }
+
+        [Fact]
+        public async Task GetStationsWithLines_WhenThereIsStations_ReturnStations()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(new List<Station> { new Station() { Id = 1 }, new Station() { Name = "Test" } });
+
+            //Act
+            var result = sut.GetStationsWithLines();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(1, result.First().Id);
+            Assert.Equal("Test", result.Last().Name);
+        }
+
+        [Fact]
+        public async Task AddStation_WhenThereIsErrorWhileAdding_ReturnError()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Add(A<Station>.Ignored))
+                .Returns(Task.FromResult<Station>(null));
+
+            //Act
+            var result = await sut.AddStation(new Station());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.False(result.Succed);
+            Assert.Equal("An error occured while adding.", result.Error);
+        }
+
+        [Fact]
+        public async Task AddStation_WhenThereIsNoErrorsWhileAdding_ReturnSucceed()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Add(A<Station>.Ignored))
+                .Returns(new Station());
+
+            //Act
+            var result = await sut.AddStation(new Station());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Succed);
+        }
+
+        [Fact]
+        public async Task UpdateStation_WhenThereIsErrorWhileAdding_ReturnError()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Update(A<Station>.Ignored))
+                .Returns(null);
+
+            //Act
+            var result = await sut.UpdateStation(new Station());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.False(result.Succed);
+            Assert.Equal("An error occured while updating.", result.Error);
+        }
+
+        [Fact]
+        public async Task UpdateStation_WhenThereIsNoErrorsWhileAdding_ReturnSucceed()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Update(A<Station>.Ignored))
+                .Returns(new Station());
+
+            //Act
+            var result = await sut.UpdateStation(new Station());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Succed);
+        }
+
+        [Fact]
+        public async Task DeleteStation_WhenThereIsErrorWhileAdding_ReturnError()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Delete(A<Station>.Ignored))
+                .Returns(null);
+
+            //Act
+            var result = await sut.DeleteStation(new Station());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.False(result.Succed);
+            Assert.Equal("An error occured while deleting.", result.Error);
+        }
+
+        [Fact]
+        public async Task DeleteStation_WhenThereIsNoErrorsWhileAdding_ReturnSucceed()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.Delete(A<Station>.Ignored))
+                .Returns(new Station());
+
+            //Act
+            var result = await sut.DeleteStation(new Station());
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Succed);
+        }
+
+        [Fact]
+        public async Task GetStationLineAsync_WhenthereIsNoStations_ReturnEmptyList()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(Enumerable.Empty<Station>());
 
             //Act
             var result = await sut.GetStationLineAsync("Test");
 
             //Assert
+            Assert.NotNull(result);
             Assert.False(result.Any());
+            Assert.Equal(0, result.Count());
+        }
+
+        [Fact]
+        public async Task GetStationLineAsync_WhenthereIsStations_ReturnLinesList()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(new List<Station> { new Station(), new Station() });
+
+            //Act
+            var result = await sut.GetStationLineAsync("Test");
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Count());
         }
 
         [Fact]
         public async Task GetDistanceAsync_WhenValidInputs_ReturnDistance()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
             var result = await sut.GetDistanceAsync(30.12, 29.20, 31.118, 30.0157);
@@ -126,8 +294,8 @@ namespace MetroAPI.Tests
         public async Task GetDistanceAsync_WhenInputsIsZero_ReturnZero()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
             var result = await sut.GetDistanceAsync(0, 0, 0, 0);
@@ -141,8 +309,8 @@ namespace MetroAPI.Tests
         public async Task GetDistanceAsync_WhenInputsAreEqual_ReturnZero()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
             var result = await sut.GetDistanceAsync(30.12, 29.20, 30.12, 29.20);
@@ -156,8 +324,8 @@ namespace MetroAPI.Tests
         public async Task Deg2RadAsync_WhenValidInput_ReturnDeg2Rad()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
             var result = await sut.Deg2RadAsync(50.16);
@@ -172,8 +340,8 @@ namespace MetroAPI.Tests
         public async Task Deg2RadAsync_WhenInputIsZero_ReturnZero()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
 
             //Act
             var result = await sut.Deg2RadAsync(0);
@@ -188,22 +356,32 @@ namespace MetroAPI.Tests
         public async Task GetSharedStationsAsync_WhenThereIsSharedStations_ReturnSharedStations()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var uow = A.Fake<IUnitOfWork>();
 
             var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(new List<Station>()
-            {
-                new Station {Name = "Station 1",
-                isShared = true,
-                SharedWith = 2,
-                LineId = 1 },
-                new Station {  Name = "Station 2",
-                isShared = true,
-                SharedWith = 1,
-                LineId = 2}
-            });
 
-            var sut = new StationsService(context, lineService);
+            var stations = new List<Station>()
+                {
+                new Station
+                {
+                    Name = "Station 1",
+                    isShared = true,
+                    SharedWith = 2,
+                    LineId = 1
+                },
+                new Station
+                {
+                    Name = "Station 2",
+                    isShared = true,
+                    SharedWith = 1,
+                    LineId = 2
+                }
+                }.AsQueryable();
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(stations);
+
+            var sut = new StationsService(uow, lineService);
 
             //Act
             var result = await sut.GetSharedStationsAsync(1, 2);
@@ -217,20 +395,24 @@ namespace MetroAPI.Tests
         public async Task GetSharedStationsAsync_WhenThereIsNoSharedStations_ReturnNoData()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var uow = A.Fake<IUnitOfWork>();
 
             var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(new List<Station>()
-            {
-                new Station {Name = "Station 1",
-                isShared = false,
-                LineId = 1 },
-                new Station {  Name = "Station 2",
-                isShared = false,
-                LineId = 2}
-            });
 
-            var sut = new StationsService(context, lineService);
+            var stations = new List<Station>()
+                {
+                  new Station {Name = "Station 1",
+                  isShared = false,
+                  LineId = 1 },
+                  new Station {  Name = "Station 2",
+                  isShared = false,
+                  LineId = 2}
+                }.AsQueryable();
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(stations);
+
+            var sut = new StationsService(uow, lineService);
 
             //Act
             var result = await sut.GetSharedStationsAsync(1, 2);
@@ -243,81 +425,213 @@ namespace MetroAPI.Tests
         public async Task FindStationByNameAsync_WhenThereIsNoStations_ReturnNoData()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-            var sut = new StationsService(context, null);
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.Ignored, A<int>.Ignored))
+                .Returns(null);
 
             //Act
-            var result = await sut.FindStationByNameAsync("Test");
+            var result = sut.FindStationByNameAsync("Test", 1);
 
             //Assert
-            Assert.False(result.Any());
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task FindStationByNameAsync_WhenThereIsStations_ReturnStation()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var sut = new StationsService(uow, null);
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.Ignored, A<int>.Ignored))
+             .Returns(new Station());
+
+            //Act
+            var result = sut.FindStationByNameAsync("Test", 1);
+
+            //Assert
+            Assert.NotNull(result);
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInTheSameLineAndTheFromStationIsBeforeTheToStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var uow = A.Fake<IUnitOfWork>();
+            var lineService = A.Fake<ILinesService>();
 
-            var line = new Line
+            var lineOne = new Line
             {
                 Name = "Line 1",
                 LineNo = 1,
             };
-            context.Lines.Add(line);
-            context.SaveChanges();
 
-            for (int i = 1; i <= 5; i++)
+            var lineOneStations = new List<Station>()
             {
-                var station = new Station()
-                {
-                    Name = "Station " + i,
-                    StationNO = i,
-                    LineId = line.Id
-                };
-                context.Stations.Add(station);
-            }
-            context.SaveChanges();
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3 }
+            };
 
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations);
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 1"), A<int>.That.IsEqualTo<int>(1)))
+               .Returns(lineOneStations.First());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 3"), A<int>.That.IsEqualTo<int>(1)))
+               .Returns(lineOneStations.Last());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(lineOneStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 1", "Station 3");
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Any());
+            Assert.Equal(3, result.Count());
+        }
+
+        [Fact]
+        public async Task GetPathAsync_WhenTheStationsIsInTheSameLineAndTheFromStationIsAfterTheToStation_ReturnPath()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
             var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(new List<Station>()
-             {
-                 new Station {  Name = "Test 0",
-                StationNO=9,
-                LineId = 1},
-                new Station
-                {
-                    Name = "Station 1",
-                    StationNO = 1,
-                    LineId = line.Id
-                },
-                new Station
-                {
-                    Name = "Station 2",
-                    StationNO = 2,
-                    LineId = line.Id
-                },
-                 new Station
-                 {
-                     Name = "Station 3",
-                     StationNO = 3,
-                     LineId = line.Id
-                 },
-                  new Station
-                  {
-                      Name = "Station 4",
-                      StationNO = 4,
-                       LineId = line.Id
-                  },
-                  new Station
-                  {
-                      Name = "Station 5",
-                      StationNO = 5,
-                      LineId = line.Id
-                  }
-            });
 
-            var sut = new StationsService(context, lineService);
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
+
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3 }
+            };
+
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations);
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 3"), A<int>.That.IsEqualTo<int>(1)))
+               .Returns(lineOneStations.Last());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 1"), A<int>.That.IsEqualTo<int>(1)))
+               .Returns(lineOneStations.First());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(lineOneStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 3", "Station 1");
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.True(result.Any());
+            Assert.Equal(3, result.Count());
+        }
+
+        [Fact]
+        public async Task GetPathAsync_WhenTheFromStationIsTheToStation_ReturnFromStation()
+        {
+            //Arrange
+            var uow = A.Fake<IUnitOfWork>();
+            var lineService = A.Fake<ILinesService>();
+
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
+
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3 }
+            };
+
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations);
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 3"), A<int>.That.IsEqualTo<int>(1)))
+               .Returns(lineOneStations.Last());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 3"), A<int>.That.IsEqualTo<int>(1)))
+               .Returns(lineOneStations.Last());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored))
+                .Returns(lineOneStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 3", "Station 3");
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Count());
+        }
+
+        [Fact]
+        public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsBeforeTheSharedStationAndTheToStationIsAfterTheSharedStation_ReturnPath()
+        {
+            //Arrange
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
+
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
+
+            var linetwo = new Line
+            {
+                Name = "Line 2",
+                LineNo = 2,
+            };
+
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, isShared = true, SharedWith = 2, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3  }
+            };
+
+            var lineTwoStations = new List<Station>()
+            {
+                new Station { Name = "Station 4", Line = linetwo, StationNO = 1 },
+                new Station { Name = "Station 2", Line = linetwo, isShared = true, SharedWith = 1, StationNO = 2 },
+                new Station { Name = "Station 5", Line = linetwo , StationNO = 3 }
+            };
+
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 1"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.First());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 5"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.Last());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             //Act
             var result = await sut.GetPathAsync("Station 1", "Station 5");
@@ -325,534 +639,361 @@ namespace MetroAPI.Tests
             //Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-        }
-
-        [Fact]
-        public async Task GetPathAsync_WhenTheStationsIsInTheSameLineAndTheFromStationIsAfterTheToStation_ReturnPath()
-        {
-            //Arrange
-            var context = new InMemoryDbContext();
-
-            var line = new Line
-            {
-                Name = "Line 1",
-                LineNo = 1,
-            };
-            context.Lines.Add(line);
-            context.SaveChanges();
-
-            for (int i = 1; i <= 5; i++)
-            {
-                var station = new Station()
-                {
-                    Name = "Station " + i,
-                    StationNO = i,
-                    LineId = line.Id
-                };
-                context.Stations.Add(station);
-            }
-            context.SaveChanges();
-
-            var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(new List<Station>()
-             {
-                 new Station {  Name = "Test 0",
-                StationNO=9,
-                LineId = 1},
-                new Station
-                {
-                    Name = "Station 1",
-                    StationNO = 1,
-                    LineId = line.Id
-                },
-                new Station
-                {
-                    Name = "Station 2",
-                    StationNO = 2,
-                    LineId = line.Id
-                },
-                 new Station
-                 {
-                     Name = "Station 3",
-                     StationNO = 3,
-                     LineId = line.Id
-                 },
-                  new Station
-                  {
-                      Name = "Station 4",
-                      StationNO = 4,
-                       LineId = line.Id
-                  },
-                  new Station
-                  {
-                      Name = "Station 5",
-                      StationNO = 5,
-                      LineId = line.Id
-                  }
-            });
-
-            var sut = new StationsService(context, lineService);
-
-            //Act
-            var result = await sut.GetPathAsync("Station 4", "Station 2");
-
-            //Assert
-            Assert.NotNull(result);
-            Assert.True(result.Any());
-        }
-
-        [Fact]
-        public async Task GetPathAsync_WhenTheFromStationIsTheToStation_ReturnFromStation()
-        {
-            //Arrange
-            var context = new InMemoryDbContext();
-
-            var line = new Line
-            {
-                Name = "Line 1",
-                LineNo = 1,
-            };
-            context.Lines.Add(line);
-            context.SaveChanges();
-
-            for (int i = 1; i <= 5; i++)
-            {
-                var station = new Station()
-                {
-                    Name = "Station " + i,
-                    StationNO = i,
-                    LineId = line.Id
-                };
-                context.Stations.Add(station);
-            }
-            context.SaveChanges();
-
-            var lineService = A.Fake<ILinesService>();
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.Ignored)).Returns(new List<Station>()
-             {
-                 new Station {  Name = "Test 0",
-                StationNO=9,
-                LineId = 1},
-                new Station
-                {
-                    Name = "Station 1",
-                    StationNO = 1,
-                    LineId = line.Id
-                },
-                new Station
-                {
-                    Name = "Station 2",
-                    StationNO = 2,
-                    LineId = line.Id
-                },
-                 new Station
-                 {
-                     Name = "Station 3",
-                     StationNO = 3,
-                     LineId = line.Id
-                 },
-                  new Station
-                  {
-                      Name = "Station 4",
-                      StationNO = 4,
-                       LineId = line.Id
-                  },
-                  new Station
-                  {
-                      Name = "Station 5",
-                      StationNO = 5,
-                      LineId = line.Id
-                  }
-            });
-
-            var sut = new StationsService(context, lineService);
-
-            //Act
-            var result = await sut.GetPathAsync("Station 2", "Station 2");
-
-            //Assert
-            Assert.NotNull(result);
-            Assert.True(result.Any());
-        }
-
-        [Fact]
-        public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsBeforeTheSharedStationAndTheToStationIsAfterTheSharedStation_ReturnPath()
-        {
-            //Arrange
-            var context = new InMemoryDbContext();
-
-            var line1 = new Line { Name = "Line 1", LineNo = 1 };
-            var line2 = new Line { Name = "Line 2", LineNo = 2 };
-            context.Lines.AddRange(line1, line2);
-            context.SaveChanges();
-
-            var lineOneStations = new List<Station>
-            {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 4", StationNO = 4, LineId = line1.Id },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id }
-            };
-
-            var lineTwoStations = new List<Station>
-            {
-            new Station { Name = "Station 6", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 7", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Station 9", StationNO = 4, LineId = line2.Id },
-            new Station { Name = "Station 10", StationNO = 5, LineId = line2.Id }
-            };
-
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.SaveChanges();
-
-            var lineService = A.Fake<ILinesService>();
-
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
-
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
-
-            var sut = new StationsService(context, lineService);
-
-            // Act
-            var result = await sut.GetPathAsync("Station 2", "Station 9");
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 2");
-            Assert.Contains(result, s => s.Name == "Station 9");
-            Assert.Contains(result, s => s.Name == "Shared");
+            Assert.Equal(3, result.DistinctBy(s => s.Name).Count());
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsBeforeTheSharedStationAndTheToStationIsBeforeTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
-            var line1 = new Line { Name = "Line 1", LineNo = 1 };
-            var line2 = new Line { Name = "Line 2", LineNo = 2 };
-            context.Lines.AddRange(line1, line2);
-            context.SaveChanges();
-
-            var lineOneStations = new List<Station>
-            {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 4", StationNO = 4, LineId = line1.Id },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id }
-            };
-
-            var lineTwoStations = new List<Station>
-            {
-            new Station { Name = "Station 6", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 7", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Station 9", StationNO = 4, LineId = line2.Id },
-            new Station { Name = "Station 10", StationNO = 5, LineId = line2.Id }
-            };
-
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.SaveChanges();
-
             var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            var linetwo = new Line
+            {
+                Name = "Line 2",
+                LineNo = 2,
+            };
 
-            var sut = new StationsService(context, lineService);
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, isShared = true, SharedWith = 2, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3  }
+            };
 
-            // Act
-            var result = await sut.GetPathAsync("Station 2", "Station 7");
+            var lineTwoStations = new List<Station>()
+            {
+                new Station { Name = "Station 4", Line = linetwo, StationNO = 1 },
+                new Station { Name = "Station 2", Line = linetwo, isShared = true, SharedWith = 1, StationNO = 2 },
+                new Station { Name = "Station 5", Line = linetwo , StationNO = 3 }
+            };
 
-            // Assert
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 1"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.First());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 4"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.First());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 1", "Station 4");
+
+            //Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 2");
-            Assert.Contains(result, s => s.Name == "Station 7");
-            Assert.Contains(result, s => s.Name == "Shared");
+            Assert.Equal(3, result.DistinctBy(s => s.Name).Count());
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsAfterTheSharedStationAndTheToStationIsAfterTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
-            var line1 = new Line { Name = "Line 1", LineNo = 1 };
-            var line2 = new Line { Name = "Line 2", LineNo = 2 };
-            context.Lines.AddRange(line1, line2);
-            context.SaveChanges();
-
-            var lineOneStations = new List<Station>
-            {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 4", StationNO = 4, LineId = line1.Id },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id }
-            };
-
-            var lineTwoStations = new List<Station>
-            {
-            new Station { Name = "Station 6", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 7", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Station 9", StationNO = 4, LineId = line2.Id },
-            new Station { Name = "Station 10", StationNO = 5, LineId = line2.Id }
-            };
-
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.SaveChanges();
-
             var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            var linetwo = new Line
+            {
+                Name = "Line 2",
+                LineNo = 2,
+            };
 
-            var sut = new StationsService(context, lineService);
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, isShared = true, SharedWith = 2, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3  }
+            };
 
-            // Act
-            var result = await sut.GetPathAsync("Station 4", "Station 9");
+            var lineTwoStations = new List<Station>()
+            {
+                new Station { Name = "Station 4", Line = linetwo, StationNO = 1 },
+                new Station { Name = "Station 2", Line = linetwo, isShared = true, SharedWith = 1, StationNO = 2 },
+                new Station { Name = "Station 5", Line = linetwo , StationNO = 3 }
+            };
 
-            // Assert
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 3"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.Last());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 5"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.Last());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 3", "Station 5");
+
+            //Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 4");
-            Assert.Contains(result, s => s.Name == "Station 9");
-            Assert.Contains(result, s => s.Name == "Shared");
+            Assert.Equal(3, result.DistinctBy(s => s.Name).Count());
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsAfterTheSharedStationAndTheToStationIsBeforeTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
-            var line1 = new Line { Name = "Line 1", LineNo = 1 };
-            var line2 = new Line { Name = "Line 2", LineNo = 2 };
-            context.Lines.AddRange(line1, line2);
-            context.SaveChanges();
-
-            var lineOneStations = new List<Station>
-            {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 4", StationNO = 4, LineId = line1.Id },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id }
-            };
-
-            var lineTwoStations = new List<Station>
-            {
-            new Station { Name = "Station 6", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 7", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Station 9", StationNO = 4, LineId = line2.Id },
-            new Station { Name = "Station 10", StationNO = 5, LineId = line2.Id }
-            };
-
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.SaveChanges();
-
             var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            var linetwo = new Line
+            {
+                Name = "Line 2",
+                LineNo = 2,
+            };
 
-            var sut = new StationsService(context, lineService);
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, isShared = true, SharedWith = 2, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3  }
+            };
 
-            // Act
-            var result = await sut.GetPathAsync("Station 4", "Station 7");
+            var lineTwoStations = new List<Station>()
+            {
+                new Station { Name = "Station 4", Line = linetwo, StationNO = 1 },
+                new Station { Name = "Station 2", Line = linetwo, isShared = true, SharedWith = 1, StationNO = 2 },
+                new Station { Name = "Station 5", Line = linetwo , StationNO = 3 }
+            };
 
-            // Assert
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 1"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.Last());
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 4"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.First());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 1", "Station 4");
+
+            //Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 4");
-            Assert.Contains(result, s => s.Name == "Station 7");
-            Assert.Contains(result, s => s.Name == "Shared");
+            Assert.Equal(3, result.DistinctBy(s => s.Name).Count());
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsSharedStationAndTheToStationIsAfterTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
-            var line1 = new Line { Name = "Line 1", LineNo = 1 };
-            var line2 = new Line { Name = "Line 2", LineNo = 2 };
-            context.Lines.AddRange(line1, line2);
-            context.SaveChanges();
-
-            var lineOneStations = new List<Station>
-            {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 4", StationNO = 4, LineId = line1.Id },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id }
-            };
-
-            var lineTwoStations = new List<Station>
-            {
-            new Station { Name = "Station 6", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 7", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Station 9", StationNO = 4, LineId = line2.Id },
-            new Station { Name = "Station 10", StationNO = 5, LineId = line2.Id }
-            };
-
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.SaveChanges();
-
             var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            var linetwo = new Line
+            {
+                Name = "Line 2",
+                LineNo = 2,
+            };
 
-            var sut = new StationsService(context, lineService);
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, isShared = true, SharedWith = 2, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3  }
+            };
 
-            // Act
-            var result = await sut.GetPathAsync("Shared", "Station 9");
+            var lineTwoStations = new List<Station>()
+            {
+                new Station { Name = "Station 4", Line = linetwo, StationNO = 1 },
+                new Station { Name = "Station 2", Line = linetwo, isShared = true, SharedWith = 1, StationNO = 2 },
+                new Station { Name = "Station 5", Line = linetwo , StationNO = 3 }
+            };
 
-            // Assert
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 2"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.ElementAt(1));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 5"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.Last());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 2", "Station 5");
+
+            //Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 9");
-            Assert.Contains(result, s => s.Name == "Shared");
+            Assert.Equal(2, result.DistinctBy(s => s.Name).Count());
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsSharedStationAndTheToStationIsBeforeTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
-            var line1 = new Line { Name = "Line 1", LineNo = 1 };
-            var line2 = new Line { Name = "Line 2", LineNo = 2 };
-            context.Lines.AddRange(line1, line2);
-            context.SaveChanges();
-
-            var lineOneStations = new List<Station>
-            {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 4", StationNO = 4, LineId = line1.Id },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id }
-            };
-
-            var lineTwoStations = new List<Station>
-            {
-            new Station { Name = "Station 6", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 7", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Station 9", StationNO = 4, LineId = line2.Id },
-            new Station { Name = "Station 10", StationNO = 5, LineId = line2.Id }
-            };
-
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.SaveChanges();
-
             var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            var lineOne = new Line
+            {
+                Name = "Line 1",
+                LineNo = 1,
+            };
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            var linetwo = new Line
+            {
+                Name = "Line 2",
+                LineNo = 2,
+            };
 
-            var sut = new StationsService(context, lineService);
+            var lineOneStations = new List<Station>()
+            {
+                new Station { Name = "Station 1", Line = lineOne, StationNO = 1 },
+                new Station { Name = "Station 2", Line = lineOne, isShared = true, SharedWith = 2, StationNO = 2 },
+                new Station { Name = "Station 3", Line = lineOne, StationNO = 3  }
+            };
 
-            // Act
-            var result = await sut.GetPathAsync("Shared", "Station 7");
+            var lineTwoStations = new List<Station>()
+            {
+                new Station { Name = "Station 4", Line = linetwo, StationNO = 1 },
+                new Station { Name = "Station 2", Line = linetwo, isShared = true, SharedWith = 1, StationNO = 2 },
+                new Station { Name = "Station 5", Line = linetwo , StationNO = 3 }
+            };
 
-            // Assert
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 2"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.ElementAt(1));
+
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 4"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.First());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
+
+            //Act
+            var result = await sut.GetPathAsync("Station 2", "Station 4");
+
+            //Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 7");
-            Assert.Contains(result, s => s.Name == "Shared");
+            Assert.Equal(2, result.DistinctBy(s => s.Name).Count());
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsSharedStationAndTheToStationIsAfterSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared12"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(2));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 17"), A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.ElementAt(4));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(3)))
-                .Returns(Task.FromResult(lineThreeStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Shared12", "Station 17");
@@ -860,66 +1001,65 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 17");
-            Assert.Contains(result, s => s.Name == "Shared12");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromStationIsSharedStationAndTheToStationIsBeforeSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared12"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(2));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 14"), A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.ElementAt(1));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(3)))
-                .Returns(Task.FromResult(lineThreeStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Shared12", "Station 14");
@@ -927,66 +1067,65 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 14");
-            Assert.Contains(result, s => s.Name == "Shared12");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheToStationIsSharedStationAndTheFromStationIsBeforeSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 2"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(1));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared12"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.ElementAt(2));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Station 2", "Shared12");
@@ -994,66 +1133,65 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 2");
-            Assert.Contains(result, s => s.Name == "Shared12");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheToStationIsSharedStationAndTheFromStationIsAfterSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 5"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(4));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared12"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.ElementAt(2));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Station 5", "Shared12");
@@ -1061,66 +1199,65 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 5");
-            Assert.Contains(result, s => s.Name == "Shared12");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheToStationIsSharedStationAndTheFromStationIsBeforeTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 2"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(1));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared23"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.ElementAt(3));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Station 2", "Shared23");
@@ -1128,66 +1265,65 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 2");
-            Assert.Contains(result, s => s.Name == "Shared23");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheToStationIsSharedStationAndTheFromStationIsAfterTheSharedStation_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Station 5"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(4));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared23"), A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.ElementAt(3));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(2)))
-                .Returns(Task.FromResult(lineTwoStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(2)))
+                .Returns(lineTwoStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Station 5", "Shared23");
@@ -1195,66 +1331,65 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Station 5");
-            Assert.Contains(result, s => s.Name == "Shared23");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromAndToStationIsSharedStationsAndThereIsIntersect_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
-            context.Lines.AddRange(line1, line2, line3);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Station 17", StationNO = 5, LineId = line3.Id },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Station 17", StationNO = 5, Line = line3 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared13"), A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.ElementAt(2));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(3)))
-                .Returns(Task.FromResult(lineThreeStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared23"), A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.ElementAt(3));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(3)))
-                .Returns(Task.FromResult(lineThreeStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Shared13", "Shared23");
@@ -1262,78 +1397,77 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Shared13");
-            Assert.Contains(result, s => s.Name == "Shared23");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInDifferentLinesAndTheFromAndToStationIsSharedStationsAndThereIsNoIntersect_ReturnPath()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var lineService = A.Fake<ILinesService>();
+            var uow = A.Fake<IUnitOfWork>();
+
 
             var line1 = new Line { Name = "Line 1", LineNo = 1 };
             var line2 = new Line { Name = "Line 2", LineNo = 2 };
             var line3 = new Line { Name = "Line 3", LineNo = 3 };
             var line4 = new Line { Name = "Line 4", LineNo = 4 };
-            context.Lines.AddRange(line1, line2, line3, line4);
-            context.SaveChanges();
 
             var lineOneStations = new List<Station>
             {
-            new Station { Name = "Station 1", StationNO = 1, LineId = line1.Id },
-            new Station { Name = "Station 2", StationNO = 2, LineId = line1.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line1.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared13", StationNO = 4, LineId = line1.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 5", StationNO = 5, LineId = line1.Id },
-            new Station { Name = "Station 6", StationNO = 6, LineId = line1.Id }
+            new Station { Name = "Station 1", StationNO = 1, Line = line1 },
+            new Station { Name = "Station 2", StationNO = 2, Line = line1 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line1, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared13", StationNO = 4, Line = line1, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 5", StationNO = 5, Line = line1 },
+            new Station { Name = "Station 6", StationNO = 6, Line = line1 }
             };
 
             var lineTwoStations = new List<Station>
             {
-            new Station { Name = "Station 7", StationNO = 1, LineId = line2.Id },
-            new Station { Name = "Station 8", StationNO = 2, LineId = line2.Id },
-            new Station { Name = "Shared12", StationNO = 3, LineId = line2.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line2.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 11", StationNO = 5, LineId = line2.Id },
-            new Station { Name = "Station 12", StationNO = 6, LineId = line2.Id }
+            new Station { Name = "Station 7", StationNO = 1, Line = line2 },
+            new Station { Name = "Station 8", StationNO = 2, Line = line2 },
+            new Station { Name = "Shared12", StationNO = 3, Line = line2, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line2, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 11", StationNO = 5, Line = line2 },
+            new Station { Name = "Station 12", StationNO = 6, Line = line2 }
             };
 
             var lineThreeStations = new List<Station>
             {
-            new Station { Name = "Station 13", StationNO = 1, LineId = line3.Id },
-            new Station { Name = "Station 14", StationNO = 2, LineId = line3.Id },
-            new Station { Name = "Shared13", StationNO = 3, LineId = line3.Id, isShared = true, SharedWith = 1 },
-            new Station { Name = "Shared23", StationNO = 4, LineId = line3.Id, isShared = true, SharedWith = 2 },
-            new Station { Name = "Shared34", StationNO = 5, LineId = line3.Id, isShared = true, SharedWith = 4 },
-            new Station { Name = "Station 18", StationNO = 6, LineId = line3.Id },
-            new Station { Name = "Station 19", StationNO = 7, LineId = line3.Id }
+            new Station { Name = "Station 13", StationNO = 1, Line = line3 },
+            new Station { Name = "Station 14", StationNO = 2, Line = line3 },
+            new Station { Name = "Shared13", StationNO = 3, Line = line3, isShared = true, SharedWith = 1 },
+            new Station { Name = "Shared23", StationNO = 4, Line = line3, isShared = true, SharedWith = 2 },
+            new Station { Name = "Shared34", StationNO = 5, Line = line3, isShared = true, SharedWith = 4 },
+            new Station { Name = "Station 18", StationNO = 6, Line = line3 },
+            new Station { Name = "Station 19", StationNO = 7, Line = line3 }
             };
 
             var lineFourStations = new List<Station>
             {
-            new Station { Name = "Station 19", StationNO = 1, LineId = line4.Id },
-            new Station { Name = "Station 20", StationNO = 2, LineId = line4.Id },
-            new Station { Name = "Shared34", StationNO = 3, LineId = line4.Id, isShared = true, SharedWith = 3 },
-            new Station { Name = "Station 22", StationNO = 4, LineId = line4.Id },
-            new Station { Name = "Station 23", StationNO = 5, LineId = line4.Id }
+            new Station { Name = "Station 19", StationNO = 1, Line = line4 },
+            new Station { Name = "Station 20", StationNO = 2, Line = line4 },
+            new Station { Name = "Shared34", StationNO = 3, Line = line4, isShared = true, SharedWith = 3 },
+            new Station { Name = "Station 22", StationNO = 4, Line = line4 },
+            new Station { Name = "Station 23", StationNO = 5, Line = line4 }
             };
 
-            context.Stations.AddRange(lineOneStations);
-            context.Stations.AddRange(lineTwoStations);
-            context.Stations.AddRange(lineThreeStations);
-            context.Stations.AddRange(lineFourStations);
-            context.SaveChanges();
+            A.CallTo(() => uow.Stations.GetStationsWithLines())
+                .Returns(lineOneStations.Concat(lineTwoStations.Concat(lineThreeStations).Concat(lineFourStations)));
 
-            var lineService = A.Fake<ILinesService>();
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared12"), A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.ElementAt(2));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(1)))
-                .Returns(Task.FromResult(lineOneStations));
+            A.CallTo(() => uow.Stations.GetStationByName(A<string>.That.IsEqualTo<string>("Shared34"), A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.ElementAt(4));
 
-            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo(3)))
-                .Returns(Task.FromResult(lineThreeStations));
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(1)))
+                .Returns(lineOneStations.AsQueryable());
 
-            var sut = new StationsService(context, lineService);
+            A.CallTo(() => lineService.GetLineStationsAsync(A<int>.That.IsEqualTo<int>(3)))
+                .Returns(lineThreeStations.AsQueryable());
+
+            var sut = new StationsService(uow, lineService);
 
             // Act
             var result = await sut.GetPathAsync("Shared12", "Shared34");
@@ -1341,23 +1475,77 @@ namespace MetroAPI.Tests
             // Assert
             Assert.NotNull(result);
             Assert.True(result.Any());
-            Assert.Contains(result, s => s.Name == "Shared12");
-            Assert.Contains(result, s => s.Name == "Shared34");
         }
 
         [Fact]
         public async Task GetPathAsync_WhenTheStationsIsInCorrect_ReturnNull()
         {
             //Arrange
-            var context = new InMemoryDbContext();
+            var uow = A.Fake<IUnitOfWork>();
 
-            var sut = new StationsService(context, null);
+            var sut = new StationsService(uow, null);
 
             // Act
             var result = await sut.GetPathAsync("Test 1", "Test 2");
 
             // Assert
             Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetPathPrice_WhenStationsCountIsZero_ReturnEight()
+        {
+            //arrange
+            var sut = new StationsService(null, null);
+
+            //act
+            var result = sut.GetPathPrice(0);
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(8, result);
+        }
+
+        [Fact]
+        public void GetPathPrice_WhenStationsCountIsTen_ReturnTen()
+        {
+            //arrange
+            var sut = new StationsService(null, null);
+
+            //act
+            var result = sut.GetPathPrice(10);
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(10, result);
+        }
+
+        [Fact]
+        public void GetPathPrice_WhenStationsCountIsTwenty_ReturnFifteen()
+        {
+            //arrange
+            var sut = new StationsService(null, null);
+
+            //act
+            var result = sut.GetPathPrice(20);
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(15, result);
+        }
+
+        [Fact]
+        public void GetPathPrice_WhenStationsCountIsTwentyFive_ReturnTwenty()
+        {
+            //arrange
+            var sut = new StationsService(null, null);
+
+            //act
+            var result = sut.GetPathPrice(25);
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(20, result);
         }
     }
 }

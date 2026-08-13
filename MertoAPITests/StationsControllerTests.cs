@@ -1,12 +1,13 @@
 ﻿using FakeItEasy;
 using MetroAPI.Controllers;
+using MetroAPI.DTOs;
+using MetroAPI.DTOS;
+using MetroAPI.Helpers;
 using MetroAPI.Models;
-using MetroAPI.Models.DTOS;
-using MetroAPI.Services.Stations;
+using MetroAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 
-namespace MetroAPI.Tests
+namespace MertoAPITests
 {
     public class StationsControllerTests
     {
@@ -105,21 +106,53 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task AddStation_WhereTheStationIsValid_ReturnOk()
+        public async Task AddStation_WhenThereIsAaErrorWhileAdding_ReturnBadRequest()
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.AddStation(A<Station>.Ignored));
+
+            A.CallTo(() => stationService.AddStation(A<Station>.Ignored))
+                .Returns(new Result { Succed = false, Error = "An error happened." });
 
             var sut = new StationsController(stationService);
 
-            var line = new StationDTO()
+            var station = new StationDTO()
             {
                 Name = "Test"
             };
 
             //Act
-            var result = await sut.AddStation(line);
+            var result = await sut.AddStation(station);
+            var badRequestResult = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestResult);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.NotNull(badRequestResult.Value);
+
+            var outputMessage = badRequestResult.Value as OutputMessage;
+            Assert.NotNull(outputMessage);
+            Assert.Equal("An error happened.", outputMessage.Message);
+        }
+
+        [Fact]
+        public async Task AddStation_WhereTheLineIsValid_ReturnOk()
+        {
+            //Arrange
+            var stationService = A.Fake<IStationsService>();
+
+            A.CallTo(() => stationService.AddStation(A<Station>.Ignored))
+                .Returns(new Result { Succed = true });
+
+            var sut = new StationsController(stationService);
+
+            var station = new StationDTO()
+            {
+                Name = "Test"
+            };
+
+            //Act
+            var result = await sut.AddStation(station);
             var okResult = result as ObjectResult;
 
             //Assert
@@ -133,21 +166,23 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task UpdateStation_WhereTheStationIsNull_ReturnNotFound()
+        public async Task UpdateStation_WhereTheLineIsNull_ReturnNotFound()
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored)).Returns(Task.FromResult<Station>(null));
+
+            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Station>(null));
 
             var sut = new StationsController(stationService);
 
-            var line = new StationDTO()
+            var station = new StationDTO()
             {
                 Name = "Test"
             };
 
             //Act
-            var result = await sut.UpdateStation(2, line);
+            var result = await sut.UpdateStation(2, station);
             var notFoundResult = result as ObjectResult;
 
             //Assert
@@ -161,11 +196,13 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task UpdateStation_WhereTheStationIsValid_ReturnOk()
+        public async Task UpdateStation_WhenThereIsAaErrorWhileAdding_ReturnBadRequest()
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored));
+
+            A.CallTo(() => stationService.UpdateStation(A<Station>.Ignored))
+                .Returns(new Result { Succed = false, Error = "An error happened." });
 
             var sut = new StationsController(stationService);
 
@@ -175,7 +212,40 @@ namespace MetroAPI.Tests
             };
 
             //Act
-            var result = await sut.UpdateStation(2, station);
+            var result = await sut.UpdateStation(1, station);
+            var badRequestResult = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestResult);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.NotNull(badRequestResult.Value);
+
+            var outputMessage = badRequestResult.Value as OutputMessage;
+            Assert.NotNull(outputMessage);
+            Assert.Equal("An error happened.", outputMessage.Message);
+        }
+
+        [Fact]
+        public async Task UpdateStation_WhereTheLineIsValid_ReturnOk()
+        {
+            //Arrange
+            var stationService = A.Fake<IStationsService>();
+
+            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored))
+                .Returns(new Station());
+
+            A.CallTo(() => stationService.UpdateStation(A<Station>.Ignored))
+               .Returns(new Result { Succed = true });
+
+            var sut = new StationsController(stationService);
+
+            var station = new StationDTO()
+            {
+                Name = "Test"
+            };
+
+            //Act
+            var result = await sut.UpdateStation(1, station);
             var okResult = result as ObjectResult;
 
             //Assert
@@ -189,11 +259,13 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task DeleteStation_WhereTheStationIsNull_ReturnNotFound()
+        public async Task DeleteStation_WhereTheLineIsNull_ReturnNotFound()
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored)).Returns(Task.FromResult<Station>(null));
+
+            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored))
+                .Returns(Task.FromResult<Station>(null));
 
             var sut = new StationsController(stationService);
 
@@ -212,11 +284,42 @@ namespace MetroAPI.Tests
         }
 
         [Fact]
-        public async Task DeleteStation_WhereTheStationIsValid_ReturnOk()
+        public async Task DeleteStation_WhenThereIsAaErrorWhileAdding_ReturnBadRequest()
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored));
+
+            A.CallTo(() => stationService.DeleteStation(A<Station>.Ignored))
+                .Returns(new Result { Succed = false, Error = "An error happened." });
+
+            var sut = new StationsController(stationService);
+
+            //Act
+            var result = await sut.DeleteStation(1);
+            var badRequestResult = result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(badRequestResult);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.NotNull(badRequestResult.Value);
+
+            var outputMessage = badRequestResult.Value as OutputMessage;
+            Assert.NotNull(outputMessage);
+            Assert.Equal("An error happened.", outputMessage.Message);
+        }
+
+        [Fact]
+        public async Task DeleteStation_WhereTheLineIsValid_ReturnOk()
+        {
+            //Arrange
+            var stationService = A.Fake<IStationsService>();
+
+            A.CallTo(() => stationService.GetStationAsync(A<int>.Ignored))
+                .Returns(new Station());
+
+
+            A.CallTo(() => stationService.DeleteStation(A<Station>.Ignored))
+               .Returns(new Result { Succed = true });
 
             var sut = new StationsController(stationService);
 
@@ -239,7 +342,9 @@ namespace MetroAPI.Tests
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationLineAsync(A<string>.Ignored)).Returns(Task.FromResult<List<int>>(null));
+
+            A.CallTo(() => stationService.GetStationLineAsync(A<string>.Ignored))
+                .Returns(Enumerable.Empty<int>());
 
             var sut = new StationsController(stationService);
             //Act
@@ -254,7 +359,6 @@ namespace MetroAPI.Tests
             var outputMessage = badRequestResult.Value as OutputMessage;
             Assert.NotNull(outputMessage);
             Assert.Equal($"Station Test was not found on any line.", outputMessage.Message);
-
         }
 
         [Fact]
@@ -286,9 +390,11 @@ namespace MetroAPI.Tests
         {
             //Arrange
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationLineAsync(A<string>.Ignored)).Returns(new List<int> { 1, 2, 2, 3 });
+            A.CallTo(() => stationService.GetStationLineAsync(A<string>.Ignored))
+                .Returns(new List<int> { 1, 2, 3 });
 
             var sut = new StationsController(stationService);
+
             //Act
             var result = await sut.GetStationLine("Test");
             var okResult = result as ObjectResult;
@@ -300,7 +406,7 @@ namespace MetroAPI.Tests
 
             var linesProp = okResult.Value.GetType().GetProperty("Lines");
             var returnedLines = (List<int>)linesProp.GetValue(okResult.Value);
-            
+
             Assert.NotNull(returnedLines);
             Assert.Equal(1, returnedLines.ElementAt(0));
             Assert.Equal(2, returnedLines.ElementAt(1));
@@ -342,9 +448,15 @@ namespace MetroAPI.Tests
             };
 
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetPathAsync(A<string>.Ignored, A<string>.Ignored)).Returns(path);
+
+            A.CallTo(() => stationService.GetPathAsync(A<string>.Ignored, A<string>.Ignored))
+                .Returns(path);
+
+            A.CallTo(() => stationService.GetPathPrice(A<int>.Ignored))
+               .Returns(8);
 
             var sut = new StationsController(stationService);
+
             //Act
             var result = await sut.GetPathWithTimeAndPrice("Test 1", "Test 2");
             var okResult = result as ObjectResult;
@@ -381,8 +493,6 @@ namespace MetroAPI.Tests
         public async Task GetNearestStation_WhenThereIsNearestStation_ReturnNearestStation()
         {
             //Arrange
-            var context = new InMemoryDbContext();
-
             var stations = new List<Station>()
             {
                 new Station{Name = "Test 1" , Latitude = 31.2,Longitude=31.2},
@@ -391,17 +501,15 @@ namespace MetroAPI.Tests
                 new Station{Name = "Test 4", Latitude = 30.2 ,Longitude= 30.2 }
             };
 
-            context.Stations.AddRange(stations);
-            context.SaveChanges();
-
             var stationService = A.Fake<IStationsService>();
-            A.CallTo(() => stationService.GetStationsAsync()).Returns(stations);
 
-            A.CallTo(() => stationService.GetDistanceAsync(A<double>.Ignored, A<double>.Ignored, A<double>.Ignored, A<double>.Ignored)).Returns(0);
+            A.CallTo(() => stationService.GetNearestStation(A<LocationDTO>.Ignored))
+                .Returns(new NearestStationDTO { Distance = 0 , StationName = "Test 1"});
 
             var sut = new StationsController(stationService);
+
             //Act
-            var location = new LocationDto
+            var location = new LocationDTO
             {
                 Latitude = 31.2,
                 Longitude = 31.2
