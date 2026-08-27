@@ -14,10 +14,11 @@ Developed using **ASP.NET Core, EF Core, and SQL Server**, it supports advanced 
 
 ---
 
-## 🧪 Testing
-- **Unit Testing** with xUnit for core functionalities.  
-- **In-Memory DB (EF Core)** for isolated, repeatable test cases.  
-- **FakeItEasy** for mocking dependencies and ensuring reliable independent tests.  
+## 🧪 Testing & Quality Assurance
+- **AAA** (Arrange–Act–Assert) pattern.
+- **xUnit** unit tests for core features.
+- **InMemory Database** for safe DB testing.
+- **FakeItEasy** for mocking dependencies.
 
 ---
 
