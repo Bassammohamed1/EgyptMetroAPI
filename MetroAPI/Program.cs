@@ -25,6 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<ILinesService, LinesService>();
 builder.Services.AddTransient<IStationsService, StationsService>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
